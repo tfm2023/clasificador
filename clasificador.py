@@ -24,7 +24,7 @@ firebase_admin.initialize_app(cred, {
 # Obtener una referencia a la base de datos
 ref = db.reference("/")
 
-# If modifying these scopes, delete the file token.json.
+
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
 TOKEN = 'token.json'
 CREDENTIALS = 'credentials.json'
@@ -75,17 +75,12 @@ def move_message(service, user_id, msg_id, label_name):
             print(f"Label '{label_name}' not found.")
 
     except HttpError as error:
-        # TODO(developer) - Handle errors from Gmail API.
         print(f'An error occurred: {error}')
 
 def main():
     creds = None
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
     if os.path.exists(TOKEN):
         creds = Credentials.from_authorized_user_file(TOKEN, SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -93,12 +88,10 @@ def main():
             flow = InstalledAppFlow.from_client_secrets_file(
                 CREDENTIALS, SCOPES)
             creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
         with open(TOKEN, 'w') as token:
             token.write(creds.to_json())
 
     try:
-        # Call the Gmail API
         service = build('gmail', 'v1', credentials=creds)
         results = service.users().messages().list(userId='me', labelIds=['INBOX'], q='is:unread').execute()
         messages = results.get('messages', [])
@@ -155,7 +148,6 @@ def main():
                 print("Subject or Body not found for the email.")
 
     except HttpError as error:
-        # TODO(developer) - Handle errors from Gmail API.
         print(f'An error occurred: {error}')
 
 
